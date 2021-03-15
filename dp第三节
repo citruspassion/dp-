@@ -1,0 +1,82 @@
+1.题目描述
+
+有一个国家，所有的国民都非常老实憨厚，某天他们在自己的国家发现了十座金矿，并且这十座金矿在地图上排成一条直线，
+国王知道这个消息后非常高兴，他希望能够把这些金子都挖出来造福国民，
+首先他把这些金矿按照在地图上的位置从西至东进行编号，
+依次为0、1、2、3、4、5、6、7、8、9，然后他命令他的手下去对每一座金矿进行勘测，
+以便知道挖取每一座金矿需要多少人力以及每座金矿能够挖出多少金子，然后动员国民都来挖金子。
+
+题目补充说明:
+
+1)挖每一座金矿需要的人数是固定的，多一个人少一个人都不行。国王知道每个金矿各需要多少人手.
+
+2)每一座金矿所挖出来的金子数是固定的.
+
+3)开采一座金矿的人完成开采工作后，他们不会再次去开采其它金矿，因此一个人最多只能使用一次.
+//分别为挖矿总人数，金矿数
+ 100 5
+
+//下面为详细的挖第i个金矿需要的人数和该金矿对应的金子数
+ 77 92
+
+ 22 22
+
+ 29 87
+
+ 50 46
+
+ 99 90
+ 
+ 求有未知个金矿，和未知个人，怎么挖有最优解
+ 
+ 
+ 
+ class  man {
+
+    int max_n;//总金矿数
+    int max_people;//总人数
+    int peopleNeed[];//第i个金矿所需人手
+    int gold[];//第i个金矿的产值
+    int dp[][]=new int [max_n][max_people];//第前i个矿被第j个人挖，最大的产值
+    public  void init()
+    {
+        for (int i = 0; i <dp.length ; i++) {
+            for (int j = 0; j <dp[i].length ; j++) {
+                dp[i][j]=-1;  //初始化
+
+            }
+        }
+
+    }
+    public  int getResult(int n,int people)  //当前剩余人数和金矿数目
+    {
+        int maxGold=0;//最大产值
+        if (people<=0)
+        {
+            maxGold=0;
+        }else {
+
+            if (dp[n][people] != -1) {
+                maxGold = dp[n][people];//如果有值，则给最大产值赋值
+            } else if (n == 0) {//就剩一个金库
+                if (people >= peopleNeed[n]) {
+                    maxGold = gold[n];
+
+                } else {
+                    maxGold = 0;
+                }
+            } else if (people >= peopleNeed[n])//一般情况，
+            {
+                int r1 = getResult(n - 1, people - peopleNeed[n]) + gold[n];//就是人够就挖
+                int r2 = getResult(n - 1, people);//上面是按顺序挖，只要人够就挖，但是你不能保证我的收益最大，只能保证顺序
+                //因为谁也不知道这个矿能产多少，万一因为挖这个导致下个真的大矿没人手怎么办
+                //所以r2的作用是跳矿挖
+                maxGold = Math.max(r1, r2);
+            } else {
+                maxGold = getResult(people, n - 1);  //这个别误会，就是因为我们一般情况是得人数大于矿，所以一般情况都满足不了，那就得跳矿
+            }
+        }
+       dp[n][people]= maxGold;  //我们需要把每次求出的最大产值给dp.因为最后由dp判断
+        return  maxGold;
+    }
+}
